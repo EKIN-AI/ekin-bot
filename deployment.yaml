@@ -2,27 +2,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: project-orchestrator
+  name: antigravity-bot
   namespace: shared
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: project-orchestrator
+      app: antigravity-bot
   template:
     metadata:
       labels:
-        app: project-orchestrator
+        app: antigravity-bot
     spec:
       initContainers:
       - name: fix-mtu
-        image: busybox
+        image: alpine
         command: ["sh", "-c", "ip link set dev eth0 mtu 1400"]
         securityContext:
           privileged: true
       containers:
       - name: orchestrator
-        image: project-orchestrator:latest
+        image: antigravity-bot:latest
         imagePullPolicy: IfNotPresent
         env:
         - name: TELEGRAM_BOT_TOKEN
