@@ -1,6 +1,29 @@
 # 🤖 Ekin Bot Orchestrator
 
+**Audience**: Internal Developers & Project Stakeholders
+**Objective**: Autonomous orchestration of Ekin-AI projects via Telegram-to-GitHub bridge.
+
 The **Ekin Bot** is a high-performance, autonomous project orchestrator designed to bridge the gap between human vision (Telegram) and technical reality (GitHub). It provides a hardened, hierarchical interface for navigating project requirements, epics, and real-time status.
+
+## 🔄 Orchestration Flow
+
+```mermaid
+graph TD
+    User((User/Phone)) -- "Telegram Commands" --> Bot[Ekin Bot (Telegraf)]
+    
+    subgraph "KinD Cluster"
+        Bot
+    end
+    
+    Bot -- "Sync Session" --> GHShell[GitHub: ekin-ai-shell]
+    Bot -- "Signal Agent (Issues/Labels)" --> GHRepos[GitHub: Project Repos]
+    
+    GHRepos -- "Triggers (status:implementing)" --> AIAgent[AI Agent (Antigravity)]
+    AIAgent -- "Code/Infra Changes" --> GHRepos
+    
+    GHShell -- "Shared Context" --> IDE[IDE Cockpit]
+    IDE -- "Local Dev" --> GHRepos
+```
 
 ---
 
