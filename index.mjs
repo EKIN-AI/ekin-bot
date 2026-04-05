@@ -33,7 +33,7 @@ async function loadSessionFromGitHub() {
   try {
     const { data: file } = await octokit.rest.repos.getContent({
       owner: GH_ORG,
-      repo: 'antigravity',
+      repo: 'ekin-ai-shell',
       path: 'user_session.json'
     });
     const content = Buffer.from(file.content, 'base64').toString();
@@ -52,7 +52,7 @@ async function syncSessionToGitHub(userId, selectedRepo) {
     try {
       const { data: file } = await octokit.rest.repos.getContent({
         owner: GH_ORG,
-        repo: 'antigravity',
+        repo: 'ekin-ai-shell',
         path: 'user_session.json'
       });
       sha = file.sha;
@@ -67,7 +67,7 @@ async function syncSessionToGitHub(userId, selectedRepo) {
 
     await octokit.rest.repos.createOrUpdateFileContents({
       owner: GH_ORG,
-      repo: 'antigravity',
+      repo: 'ekin-ai-shell',
       path: 'user_session.json',
       message: `🔄 Sync Session: ${selectedRepo} for User ${userId}`,
       content: Buffer.from(JSON.stringify(userSession, null, 2)).toString('base64'),
@@ -109,7 +109,7 @@ bot.command('roadmap', (ctx) => {
   return ctx.executeCommand('requirements'); 
 });
 
-bot.start((ctx) => ctx.reply('🚀 Antigravity Orchestrator Online. Use /projects to begin.'));
+bot.start((ctx) => ctx.reply('🚀 Ekin Bot Orchestrator Online. Use /projects to begin.'));
 
 // Command: /projects - List all repos in the org
 bot.command('projects', async (ctx) => {
@@ -358,7 +358,7 @@ bot.command('kickoff', async (ctx) => {
 
     const { data: issue } = await octokit.rest.issues.create({
       owner: GH_ORG,
-      repo: 'antigravity',
+      repo: 'ekin-ai-shell',
       title: `[KICKOFF] ${projectName}`,
       labels: ['status:kickoff-pending'],
       body: JSON.stringify({
@@ -387,7 +387,7 @@ bot.command('bootstrap', async (ctx) => {
   try {
     const { data: issue } = await octokit.rest.issues.create({
       owner: GH_ORG,
-      repo: 'antigravity',
+      repo: 'ekin-ai-shell',
       title: `[BOOTSTRAP] ${projectName}`,
       labels: ['status:bootstrap-pending'],
       body: JSON.stringify({
@@ -593,7 +593,7 @@ console.log('🤖 Antigravity Bot: Launching Long Polling...');
   try {
     await loadSessionFromGitHub();
     await bot.launch();
-    console.log('✅ Antigravity Orchestrator is running (Total Visibility Hierarchy)');
+    console.log('✅ Ekin Bot Orchestrator is running (Total Visibility Hierarchy)');
   } catch (err) {
     console.error('❌ Antigravity Bot: Launch Error:', err);
     process.exit(1);

@@ -2,17 +2,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: antigravity-bot
+  name: ekin-bot
   namespace: shared
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: antigravity-bot
+      app: ekin-bot
   template:
     metadata:
       labels:
-        app: antigravity-bot
+        app: ekin-bot
     spec:
       initContainers:
       - name: fix-mtu
@@ -22,7 +22,7 @@ spec:
           privileged: true
       containers:
       - name: orchestrator
-        image: antigravity-bot:latest
+        image: ekin-bot:latest
         imagePullPolicy: IfNotPresent
         env:
         - name: TELEGRAM_BOT_TOKEN
