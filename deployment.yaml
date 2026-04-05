@@ -38,7 +38,7 @@ spec:
         - name: GH_ORG
           value: "Ekin-AI"
         - name: ALLOWED_USER_ID
-          value: "PLACEHOLDER_ID"
+          value: "8375421791"
         resources:
           limits:
             cpu: "100m"
