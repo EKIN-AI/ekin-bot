@@ -32,16 +32,25 @@ export class PersonaModule extends BaseModule {
     this.addCommand('solution', 'Examine the physical architecture and solution design.', async (ctx) => {
       const repo = userSession[ctx.from.id]?.selectedRepo;
       if (!repo) return ctx.reply('🛑 No project selected.');
+
       const content = await getRepoFile(repo, 'docs/architecture/solution_design.md');
-      if (!content) return ctx.reply('📭 No Solution Design found.');
-      const stack = content.match(/## 🛠️ Technical Stack\s+([\s\S]*?)\s+(?:---|\n#)/);
-      const arch = content.match(/## 📐 Architecture Pattern\s+([\s\S]*?)\s+(?:---|\n#)/);
-      const infra = content.match(/## 📐 Physical Architecture\s+([\s\S]*?)\s+(?:---|\n#)/);
-      let report = `🏛️ **Solution Architecture: ${repo}**\n\n`;
-      if (stack) report += `🛠️ **Tech Stack**:\n${stack[1].trim()}\n\n`;
-      if (arch) report += `📐 **Architecture Pattern**:\n${arch[1].trim()}\n\n`;
-      if (infra) report += `🏙️ **Physical Design**:\n${infra[1].trim()}\n\n`;
-      ctx.replyWithMarkdown(report);
+      if (!content) {
+        return ctx.reply(`📭 No Solution Design found for [${repo}].\n\n💡 Use the IDE Agent to generate "docs/architecture/solution_design.md" based on your requirements!`);
+      }
+
+      try {
+        const stack = content.match(/## 🛠️ Technical Stack\s+([\s\S]*?)\s+(?:---|\n#)/);
+        const arch = content.match(/## 📐 Architecture Pattern\s+([\s\S]*?)\s+(?:---|\n#)/);
+        const infra = content.match(/## 📐 Physical Architecture\s+([\s\S]*?)\s+(?:---|\n#)/);
+
+        let report = `🏛️ **Solution Architecture: ${repo}**\n\n`;
+        if (stack) report += `🛠️ **Tech Stack**:\n${stack[1].trim()}\n\n`;
+        if (arch) report += `📐 **Architecture Pattern**:\n${arch[1].trim()}\n\n`;
+        if (infra) report += `🏙️ **Physical Design**:\n${infra[1].trim()}\n\n`;
+        ctx.replyWithMarkdown(report);
+      } catch (err) {
+        ctx.reply('❌ Error parsing solution design.');
+      }
     });
 
     this.addCommand('security', 'Review the security posture and compliance status.', async (ctx) => {

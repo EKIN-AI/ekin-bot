@@ -38,7 +38,9 @@ export async function syncSessionToGitHub(userId, selectedRepo) {
     userSession[userId] = {
       selectedRepo,
       lastSync: new Date().toISOString(),
-      platform: 'Telegram'
+      platform: 'Telegram',
+      initiator: userId,
+      origin: 'Telegram'
     };
 
     await octokit.rest.repos.createOrUpdateFileContents({

@@ -148,7 +148,12 @@ export class OrchestrationModule extends BaseModule {
 
       try {
         await octokit.rest.issues.addLabels({ owner: GH_ORG, repo: selectedRepo, issue_number: num, labels: ['status:implementing'] });
-        await octokit.rest.issues.createComment({ owner: GH_ORG, repo: selectedRepo, issue_number: num, body: '🚀 Antigravity Agent: Remote implementation command received.' });
+        await octokit.rest.issues.createComment({ 
+          owner: GH_ORG, 
+          repo: selectedRepo, 
+          issue_number: num, 
+          body: `🚀 Antigravity Agent: Remote implementation command received.\n\nInitiated by: ${ctx.from.username || ctx.from.id}\nPlatform: Telegram` 
+        });
         ctx.reply(`🏗️ Implementation Started for Issue #${num} in [${selectedRepo}].`);
       } catch (err) { ctx.reply(`❌ Error: ${err.message}`); }
     });
@@ -161,7 +166,12 @@ export class OrchestrationModule extends BaseModule {
 
       try {
         await octokit.rest.issues.update({ owner: GH_ORG, repo: selectedRepo, issue_number: num, state: 'closed' });
-        await octokit.rest.issues.createComment({ owner: GH_ORG, repo: selectedRepo, issue_number: num, body: '🏁 Antigravity Agent: Task completed successfully.' });
+        await octokit.rest.issues.createComment({ 
+          owner: GH_ORG, 
+          repo: selectedRepo, 
+          issue_number: num, 
+          body: `🏁 Antigravity Agent: Task completed successfully.\n\nInitiated by: ${ctx.from.username || ctx.from.id}\nPlatform: Telegram` 
+        });
         ctx.reply(`✅ Issue #${num} in [${selectedRepo}] HAS BEEN CLOSED.`);
       } catch (err) { ctx.reply(`❌ Error: ${err.message}`); }
     });

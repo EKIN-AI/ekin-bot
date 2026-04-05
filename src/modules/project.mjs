@@ -63,7 +63,13 @@ export class ProjectModule extends BaseModule {
             repo_url: newRepo.html_url,
             requested_by: ctx.from.username || ctx.from.id,
             phase: 'Requirements Gathering',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            audit: {
+              initiator: ctx.from.username || ctx.from.id,
+              user_id: ctx.from.id,
+              platform: 'Telegram',
+              event: 'PROJECT_KICKOFF'
+            }
           }, null, 2)
         });
 
@@ -90,7 +96,13 @@ export class ProjectModule extends BaseModule {
             project_name: projectName,
             requested_services: services,
             requested_by: ctx.from.username || ctx.from.id,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            audit: {
+              initiator: ctx.from.username || ctx.from.id,
+              user_id: ctx.from.id,
+              platform: 'Telegram',
+              event: 'INFRA_BOOTSTRAP'
+            }
           }, null, 2)
         });
 

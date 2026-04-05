@@ -73,47 +73,84 @@ export class DiscoveryModule extends BaseModule {
       }
     });
 
-    this.addCommand('epics', 'List all strategic Epics defined for the current project.', async (ctx) => {
+    this.addCommand('epics', 'List all strategic Epics from the live GitHub issue backlog.', async (ctx) => {
       const repo = userSession[ctx.from.id]?.selectedRepo;
       if (!repo) return ctx.reply('🛑 No project selected.');
 
-      const content = await getRepoFile(repo, 'docs/requirements/initial_discovery.md');
-      if (!content) return ctx.reply('📭 No roadmap found.');
+      try {
+        const { data: issues } = await octokit.rest.issues.listForRepo({
+          owner: GH_ORG,
+          repo,
+          labels: 'epic',
+          state: 'all'
+        });
 
-      const epics = parseDiscoveryHierarchy(content, 1);
-      let report = `🏛️ **Project Epics: ${repo}**\n\n`;
-      epics.forEach((epic, i) => report += `${i + 1}. ${epic}\n`);
-      report += `\nUse /features <name> to drill down.`;
-      ctx.replyWithMarkdown(report);
+        if (issues.length === 0) return ctx.reply(`📭 No Epics found in [${repo}]. Use /sync to import from documentation.`);
+
+        let report = `🏛️ **Project Epics: ${repo}**\n\n`;
+        issues.forEach((epic, i) => report += `${i + 1}. ${epic.title} (#${epic.number})\n`);
+        report += `\nUse /features <name> to drill down.`;
+        ctx.replyWithMarkdown(report);
+      } catch (err) {
+        ctx.reply(`❌ Error fetching Epics: ${err.message}`);
+      }
     });
 
-    this.addCommand('features', 'List all Features associated with a specific Epic.', async (ctx) => {
+    this.addCommand('features', 'List all Features associated with an Epic from GitHub Issues.', async (ctx) => {
       const repo = userSession[ctx.from.id]?.selectedRepo;
       const epicQuery = ctx.message.text.split(' ').slice(1).join(' ').trim();
       if (!repo || !epicQuery) return ctx.reply('❓ Please specify an Epic name. Example: /features Authn');
 
-      const content = await getRepoFile(repo, 'docs/requirements/initial_discovery.md');
-      const features = parseDiscoveryHierarchy(content, 2, epicQuery);
-      if (features.length === 0) return ctx.reply(`📭 No features found for Epic: "${epicQuery}"`);
+      try {
+        const { data: issues } = await octokit.rest.issues.listForRepo({
+          owner: GH_ORG,
+          repo,
+          labels: 'feature',
+          state: 'all'
+        });
 
-      let report = `🧩 **Features for Epic: ${epicQuery}**\n\n`;
-      features.forEach((feat, i) => report += `${i + 1}. ${feat}\n`);
-      report += `\nUse /stories <name> for user impact.`;
-      ctx.replyWithMarkdown(report);
+        const filtered = issues.filter(iss => 
+          iss.title.toLowerCase().includes(epicQuery.toLowerCase()) || 
+          iss.body?.toLowerCase().includes(epicQuery.toLowerCase())
+        );
+
+        if (filtered.length === 0) return ctx.reply(`📭 No features found linked to Epic: "${epicQuery}"`);
+
+        let report = `🧩 **Features for Epic: ${epicQuery}**\n\n`;
+        filtered.forEach((feat, i) => report += `${i + 1}. ${feat.title} (#${feat.number})\n`);
+        report += `\nUse /stories <name> for user impact.`;
+        ctx.replyWithMarkdown(report);
+      } catch (err) {
+        ctx.reply(`❌ Error fetching features: ${err.message}`);
+      }
     });
 
-    this.addCommand('stories', 'View User Stories for a specific Feature.', async (ctx) => {
+    this.addCommand('stories', 'View User Stories for a specific Feature from GitHub Issues.', async (ctx) => {
       const repo = userSession[ctx.from.id]?.selectedRepo;
       const featQuery = ctx.message.text.split(' ').slice(1).join(' ').trim();
       if (!repo || !featQuery) return ctx.reply('❓ Please specify a Feature name.');
 
-      const content = await getRepoFile(repo, 'docs/requirements/initial_discovery.md');
-      const stories = parseDiscoveryHierarchy(content, 3, featQuery);
-      if (stories.length === 0) return ctx.reply(`📭 No user stories found for: "${featQuery}"`);
+      try {
+        const { data: issues } = await octokit.rest.issues.listForRepo({
+          owner: GH_ORG,
+          repo,
+          labels: 'story',
+          state: 'all'
+        });
 
-      let report = `📖 **User Stories: ${featQuery}**\n\n`;
-      stories.forEach((story, i) => report += `• ${story}\n`);
-      ctx.replyWithMarkdown(report);
+        const filtered = issues.filter(iss => 
+          iss.title.toLowerCase().includes(featQuery.toLowerCase()) || 
+          iss.body?.toLowerCase().includes(featQuery.toLowerCase())
+        );
+
+        if (filtered.length === 0) return ctx.reply(`📭 No user stories found for: "${featQuery}"`);
+
+        let report = `📖 **User Stories: ${featQuery}**\n\n`;
+        filtered.forEach((story, i) => report += `• ${story.title} (#${story.number})\n`);
+        ctx.replyWithMarkdown(report);
+      } catch (err) {
+        ctx.reply(`❌ Error fetching stories: ${err.message}`);
+      }
     });
 
     this.addCommand('task', 'Get detailed status and info for a specific GitHub Issue.', async (ctx) => {

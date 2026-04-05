@@ -2,12 +2,14 @@ import { Telegraf } from 'telegraf';
 import { BOT_TOKEN, ALLOWED_ID } from './src/config.mjs';
 import { loadSessionFromGitHub } from './src/session.mjs';
 import { registry } from './src/registry.mjs';
+import { access } from './src/access.mjs';
 
 // Module Imports
 import { ProjectModule } from './src/modules/project.mjs';
 import { DiscoveryModule } from './src/modules/discovery.mjs';
 import { OrchestrationModule } from './src/modules/orchestration.mjs';
 import { PersonaModule } from './src/modules/persona.mjs';
+import { SyncModule } from './src/modules/sync.mjs';
 
 console.log('🚀 Antigravity Bot: Launching Modular Orchestrator...');
 
@@ -21,8 +23,9 @@ bot.use(async (ctx, next) => {
 
   console.log(`📩 [IN] from=${username} (${userId}), text="${text}"`);
 
-  if (ALLOWED_ID && String(userId) !== String(ALLOWED_ID)) {
-    console.warn(`🛑 [BLOCKED] Unauthorized ID: ${userId}`);
+  // Use dynamic ACL check
+  if (!access.isAuthorized(userId)) {
+    console.warn(`🛑 [BLOCKED] Unauthorized User ID: ${userId} (${username})`);
     return;
   }
   
@@ -34,6 +37,7 @@ registry.registerModule(new ProjectModule());
 registry.registerModule(new DiscoveryModule());
 registry.registerModule(new OrchestrationModule());
 registry.registerModule(new PersonaModule());
+registry.registerModule(new SyncModule());
 
 // Wiring everything to Telegraf
 registry.registerWithBot(bot);
@@ -41,9 +45,10 @@ registry.registerWithBot(bot);
 // 🚀 Boot Sequence
 (async () => {
   try {
+    await access.loadPermissions();
     await loadSessionFromGitHub();
     await bot.launch();
-    console.log('✅ Ekin Bot Orchestrator is ONLINE (Modular Architecture)');
+    console.log('✅ Ekin Bot Orchestrator is ONLINE (Modular Architecture + ACL Active)');
   } catch (err) {
     console.error('❌ Launch Error:', err);
     process.exit(1);
