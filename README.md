@@ -9,20 +9,23 @@ The **Ekin Bot** is a high-performance, autonomous project orchestrator designed
 
 ```mermaid
 graph TD
-    User((User/Phone)) -- "Telegram Commands" --> Bot[Ekin Bot (Telegraf)]
+    User(("User (Mobile/Telegram)")) -- "/commands" --> Bot["Ekin Bot (Telegraf)"]
     
-    subgraph "KinD Cluster"
+    subgraph "Infrastructure (KinD)"
         Bot
     end
     
-    Bot -- "Sync Session" --> GHShell[GitHub: ekin-ai-shell]
-    Bot -- "Signal Agent (Issues/Labels)" --> GHRepos[GitHub: Project Repos]
+    Bot -- "Sync Session" --> GHShell["GitHub: ekin-ai-shell"]
+    Bot -- "Signals (Kickoff/Bootstrap)" --> GHShell
+    Bot -- "Signals (status:implementing)" --> ProjectRepo["GitHub: Project Repos"]
     
-    GHRepos -- "Triggers (status:implementing)" --> AIAgent[AI Agent (Antigravity)]
-    AIAgent -- "Code/Infra Changes" --> GHRepos
+    GHShell -- "Context & Workflows" --> AIAgent["AI Agent (Antigravity)"]
+    ProjectRepo -- "Code Tasks" --> AIAgent
     
-    GHShell -- "Shared Context" --> IDE[IDE Cockpit]
-    IDE -- "Local Dev" --> GHRepos
+    AIAgent -- "Implementation" --> ProjectRepo
+    
+    GHShell -- "Shared State" --> IDE["IDE Cockpit"]
+    IDE -- "Development" --> ProjectRepo
 ```
 
 ---
