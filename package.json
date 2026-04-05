@@ -1,0 +1,16 @@
+{
+  "name": "project-orchestrator",
+  "version": "1.0.0",
+  "description": "Telegram bot for managing Ekin-AI projects via GitHub",
+  "type": "module",
+  "main": "index.mjs",
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "dependencies": {
+    "@octokit/graphql": "^8.1.1",
+    "dotenv": "^16.4.5",
+    "octokit": "^4.0.2",
+    "telegraf": "^4.16.3"
+  }
+}

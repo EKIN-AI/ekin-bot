@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project-orchestrator
+  namespace: shared
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: project-orchestrator
+  template:
+    metadata:
+      labels:
+        app: project-orchestrator
+    spec:
+      initContainers:
+      - name: fix-mtu
+        image: busybox
+        command: ["sh", "-c", "ip link set dev eth0 mtu 1400"]
+        securityContext:
+          privileged: true
+      containers:
+      - name: orchestrator
+        image: project-orchestrator:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: TELEGRAM_BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: telegram-bot-secret
+              key: TELEGRAM_BOT_TOKEN
+        - name: GH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: telegram-bot-secret
+              key: GH_TOKEN
+        - name: GH_ORG
+          value: "Ekin-AI"
+        - name: ALLOWED_USER_ID
+          value: "PLACEHOLDER_ID"
+        resources:
+          limits:
+            cpu: "100m"
+            memory: "128Mi"
+          requests:
+            cpu: "10m"
+            memory: "64Mi"
