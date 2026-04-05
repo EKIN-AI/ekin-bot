@@ -174,5 +174,30 @@ export class DiscoveryModule extends BaseModule {
         ctx.reply(`❌ Could not find Task #${taskNum} in ${repo}.`);
       }
     });
+
+    this.addCommand('questions', 'List all pending Human-in-Loop questions and project uncertainties.', async (ctx) => {
+      const repo = userSession[ctx.from.id]?.selectedRepo;
+      if (!repo) return ctx.reply('🛑 No project selected.');
+
+      try {
+        const { data: issues } = await octokit.rest.issues.listForRepo({
+          owner: GH_ORG,
+          repo,
+          labels: 'question',
+          state: 'open'
+        });
+
+        if (issues.length === 0) return ctx.reply(`✅ No pending questions found for [${repo}].`);
+
+        let report = `❓ **Open Questions: ${repo}**\n\n`;
+        issues.forEach((q, i) => {
+          report += `${i + 1}. [#${q.number}] ${q.title}\n`;
+        });
+        report += `\nUse \`/task <#ID>\` to view details or answer on GitHub.`;
+        ctx.replyWithMarkdown(report);
+      } catch (err) {
+        ctx.reply(`❌ Error fetching questions: ${err.message}`);
+      }
+    });
   }
 }
