@@ -6,5 +6,6 @@ COPY package*.json ./
 RUN npm install --production
 
 COPY index.mjs ./
+COPY src/ ./src/
 
 CMD ["node", "index.mjs"]

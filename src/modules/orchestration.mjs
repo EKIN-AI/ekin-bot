@@ -154,6 +154,16 @@ export class OrchestrationModule extends BaseModule {
           issue_number: num, 
           body: `🚀 Antigravity Agent: Remote implementation command received.\n\nInitiated by: ${ctx.from.username || ctx.from.id}\nPlatform: Telegram` 
         });
+
+        // 🔄 DISPATCH PATTERN: Drop a lightweight notification ticket into the central shell queue.
+        // This alerts the background poller that a task needs immediate agentic execution.
+        await octokit.rest.issues.create({
+          owner: GH_ORG,
+          repo: 'ekin-ai-shell',
+          title: `[DISPATCH] Implement task #${num} in ${selectedRepo}`,
+          labels: ['status:dispatch-pending'],
+          body: `Implementation requested for task #${num} in ${selectedRepo}. Please process it: https://github.com/${GH_ORG}/${selectedRepo}/issues/${num}`
+        });
         ctx.reply(`🏗️ Implementation Started for Issue #${num} in [${selectedRepo}].`);
       } catch (err) { ctx.reply(`❌ Error: ${err.message}`); }
     });

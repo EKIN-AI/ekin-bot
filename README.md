@@ -5,28 +5,32 @@
 
 The **Ekin Bot** is a high-performance, autonomous project orchestrator designed to bridge the gap between human vision (Telegram) and technical reality (GitHub). It provides a hardened, hierarchical interface for navigating project requirements, epics, and real-time status.
 
-## 🔄 Orchestration Flow
+## 🔄 Orchestration Flow (The Dispatch Pattern)
 
 ```mermaid
 graph TD
-    User(("User (Mobile/Telegram)")) -- "/commands" --> Bot["Ekin Bot (Telegraf)"]
+    User(("User (Telegram)")) -- "/kickoff, /implement" --> Bot["Ekin Bot (Telegraf)"]
     
-    subgraph "Infrastructure (KinD)"
+    subgraph "Cloud Infrastructure (KinD)"
         Bot
     end
     
-    Bot -- "Sync Session" --> GHShell["GitHub: ekin-ai-shell"]
-    Bot -- "Signals (Kickoff/Bootstrap)" --> GHShell
-    Bot -- "Signals (status:implementing)" --> ProjectRepo["GitHub: Project Repos"]
+    Bot -- "1. Detailed Issue Payload" --> TargetRepo["Target Project Repo"]
+    Bot -- "2. Lightweight Notification Pointer" --> Inbox["Global Inbox: ekin-ai-shell"]
     
-    GHShell -- "Context & Workflows" --> AIAgent["AI Agent (Antigravity)"]
-    ProjectRepo -- "Code Tasks" --> AIAgent
+    Inbox <-- "3. Polls for [DISPATCH]" --> Poller["Local Daemon (poller.mjs)"]
     
-    AIAgent -- "Implementation" --> ProjectRepo
+    Poller -- "4. Git Pull/Clone" --> LocalFS["Local File System (~/projects)"]
+    Poller -- "5. Hand off to CLI" --> AIAgent["Antigravity AI Agent"]
     
-    GHShell -- "Shared State" --> IDE["IDE Cockpit"]
-    IDE -- "Development" --> ProjectRepo
+    AIAgent -- "6. Reads task details" --> TargetRepo
+    AIAgent -- "7. Scaffolds / Types Code" --> LocalFS
 ```
+
+**The Architecture:**
+1. **Target Routing**: All heavy details (JSON logic, audit trails, and instructions) are securely written directly into the target project where they belong.
+2. **Dispatch Notifications**: A tiny pointer ticket is dropped into the central `ekin-ai-shell` repository.
+3. **Local Poller**: A background process (`poller.mjs`) on your dev machine acts as a router. It reads the dispatch, performs Git operations without destroying local uncommitted work, and invokes the headless AI agent to work on the code locally.
 
 ---
 

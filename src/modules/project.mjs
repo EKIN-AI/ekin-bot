@@ -53,9 +53,9 @@ export class ProjectModule extends BaseModule {
           description: `Requirements Phase: Project Kickoff for ${projectName}`
         });
 
-        await octokit.rest.issues.create({
+        const { data: issue } = await octokit.rest.issues.create({
           owner: GH_ORG,
-          repo: 'ekin-ai-shell',
+          repo: projectName,
           title: `[KICKOFF] ${projectName}`,
           labels: ['status:kickoff-pending'],
           body: JSON.stringify({
@@ -71,6 +71,16 @@ export class ProjectModule extends BaseModule {
               event: 'PROJECT_KICKOFF'
             }
           }, null, 2)
+        });
+
+        // 🔄 DISPATCH PATTERN: Drop a lightweight notification ticket into the central shell queue.
+        // The real payload is stored in the project issue, while this serves purely as a messaging hook.
+        await octokit.rest.issues.create({
+          owner: GH_ORG,
+          repo: 'ekin-ai-shell',
+          title: `[DISPATCH] New task in ${projectName}`,
+          labels: ['status:dispatch-pending'],
+          body: `A new task was created in ${projectName}. Please process it: ${issue.html_url}`
         });
 
         ctx.reply(`🏁 KICKOFF INITIATED: ${projectName}\n\nRepo: ${newRepo.html_url}\nPhase: Requirements Gathering\n\nYour IDE Agent has been signaled to begin the discovery workshop!`);
@@ -89,7 +99,7 @@ export class ProjectModule extends BaseModule {
       try {
         const { data: issue } = await octokit.rest.issues.create({
           owner: GH_ORG,
-          repo: 'ekin-ai-shell',
+          repo: projectName,
           title: `[BOOTSTRAP] ${projectName}`,
           labels: ['status:bootstrap-pending'],
           body: JSON.stringify({
@@ -104,6 +114,15 @@ export class ProjectModule extends BaseModule {
               event: 'INFRA_BOOTSTRAP'
             }
           }, null, 2)
+        });
+
+        // 🔄 DISPATCH PATTERN: Notify the shell that an infrastructure task was requested.
+        await octokit.rest.issues.create({
+          owner: GH_ORG,
+          repo: 'ekin-ai-shell',
+          title: `[DISPATCH] Bootstrap requested in ${projectName}`,
+          labels: ['status:dispatch-pending'],
+          body: `A new infrastructure task was created in ${projectName}. Please process it: ${issue.html_url}`
         });
 
         ctx.reply(`🏗️ BOOTSTRAP REQUESTED: ${projectName}\n\nServices: ${services}\nIssue: ${issue.html_url}\n\nYour local Antigravity engine has been signaled. Please confirm the setup in your IDE.`);

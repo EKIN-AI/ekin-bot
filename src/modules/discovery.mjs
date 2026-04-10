@@ -26,6 +26,16 @@ export class DiscoveryModule extends BaseModule {
           assignees: ['ekininnovations-yad']
         });
 
+        // 🔄 DISPATCH PATTERN: Drop a lightweight notification ticket into the central shell queue.
+        // This acts as a trigger for the local AI poller daemon, pointing it to the real task details.
+        await octokit.rest.issues.create({
+          owner: GH_ORG,
+          repo: 'ekin-ai-shell',
+          title: `[DISPATCH] New feature in ${selectedRepo}`,
+          labels: ['status:dispatch-pending'],
+          body: `A new feature was created in ${selectedRepo}. Please process it: ${issue.html_url}`
+        });
+
         ctx.reply(`✅ Created Feature: "${title}"\n🔗 ${issue.html_url}`);
       } catch (err) {
         ctx.reply(`❌ Error creating feature: ${err.message}`);
