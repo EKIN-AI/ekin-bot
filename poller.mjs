@@ -82,9 +82,11 @@ async function startPolling() {
           console.log(`📁 Project folder not found locally. Cloning...`);
           runCmd(`git clone git@github.com:${GH_ORG}/${projectName}.git`, PROJECTS_DIR);
           
-          console.log(`🔗 Linking .clinerules from ekin-ai-shell to ${projectName}...`);
-          const shellRulesPath = path.join(PROJECTS_DIR, 'ekin-ai-shell', '.clinerules');
-          runCmd(`ln -sf ${shellRulesPath} .clinerules`, projectPath);
+          console.log(`🔗 Linking AI brain (.clinerules, skills, workflows) from ekin-ai-shell to ${projectName}...`);
+          const shellPath = path.join(PROJECTS_DIR, 'ekin-ai-shell');
+          runCmd(`ln -sf ${path.join(shellPath, '.clinerules')} .clinerules`, projectPath);
+          runCmd(`ln -sf ${path.join(shellPath, 'skills')} skills`, projectPath);
+          runCmd(`ln -sf ${path.join(shellPath, 'workflows')} workflows`, projectPath);
         } else {
           console.log(`📁 Project folder found. Pulling latest code...`);
           // Note: pulling explicitly without rebase/stash to respect local state
