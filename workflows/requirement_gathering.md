@@ -1,0 +1,1 @@
+../ekin-ai-shell/workflows/requirement_gathering.md

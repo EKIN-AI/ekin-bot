@@ -1,0 +1,1 @@
+../ekin-ai-shell/workflows/autonomous_worker.md

@@ -1,0 +1,1 @@
+../ekin-ai-shell/workflows/project_bootstrap.md
